@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25123.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExeTester", "ExeTester\ExeTester.csproj", "{EDE3CEC8-23D1-4EA6-B7D6-5EC7D4AA819C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComparerLib", "CompareLib\ComparerLib.csproj", "{88C9B4C1-7835-4964-9053-FD2D02653999}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EDE3CEC8-23D1-4EA6-B7D6-5EC7D4AA819C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EDE3CEC8-23D1-4EA6-B7D6-5EC7D4AA819C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EDE3CEC8-23D1-4EA6-B7D6-5EC7D4AA819C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EDE3CEC8-23D1-4EA6-B7D6-5EC7D4AA819C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{88C9B4C1-7835-4964-9053-FD2D02653999}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88C9B4C1-7835-4964-9053-FD2D02653999}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88C9B4C1-7835-4964-9053-FD2D02653999}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88C9B4C1-7835-4964-9053-FD2D02653999}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
