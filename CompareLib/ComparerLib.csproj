@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AppSettings.cs" />
     <Compile Include="CompareData.cs" />
     <Compile Include="ListForm.cs">
       <SubType>Form</SubType>

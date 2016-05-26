@@ -21,7 +21,8 @@ namespace ComparerLib
 			list.ForEach(item => item.Parent = this);
 			Items = list.AsReadOnly();
 
-			//	Set the descriptions            DescriptionA = descriptionA;
+			//	Set the descriptions
+			DescriptionA = descriptionA;
 			DescriptionB = descriptionB;
 		}
 	}

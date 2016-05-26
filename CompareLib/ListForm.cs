@@ -8,52 +8,11 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using System.Xml.Linq;
 
 namespace ComparerLib
 {
 	internal partial class ListForm : Form
 	{
-		internal class AppSettings
-		{
-			private const string FileName = "CompareLib.config";
-			private readonly string _filePath;
-			private Dictionary<string, string> _settings;
-			public string GetSetting(string key, string defaultValue = null)
-			{
-				return (_settings.ContainsKey(key) ? _settings[key] : null) ?? defaultValue;
-			}
-			public void SetSetting(string key, string value)
-			{
-				_settings[key] = value;
-			}
-			public void SaveSettings()
-			{
-				new XDocument(
-					new XElement("appSettings",
-						_settings.Select(s => new XElement("add", new[] { new XAttribute("key", s.Key), new XAttribute("value", s.Value) }))
-						)
-					).Save(_filePath);
-			}
-			public AppSettings()
-			{
-				_filePath = AppDomain.CurrentDomain.BaseDirectory;
-				if (!_filePath.EndsWith("\\"))
-					_filePath += '\\';
-				_filePath += FileName;
-				if (File.Exists(_filePath))
-					_settings = XDocument.Load(_filePath).Element("appSettings")?.Elements()
-						.Select(e => new
-						{
-							key = e.Attribute("key")?.Value,
-							value = e.Attribute("value")?.Value
-						}).GroupBy(g => g.key)
-						.Select(g => g.Last())
-						.ToDictionary(k => k.key, v => v.value, StringComparer.OrdinalIgnoreCase);
-				if (_settings == null)
-					_settings = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-			}
-		}
 		private const string ComparePathKey = "comparer";
 
 		private CompareData _parent;
@@ -206,6 +165,15 @@ namespace ComparerLib
 				e.Handled = true;
 				Close();
 			}
+		}
+
+		private void menuCopy_Click(object sender, EventArgs e)
+		{
+			int take = theList.Columns.Count - 2;
+			string headers = string.Join("\t", theList.Columns.Cast<ColumnHeader>().Take(take).Select(c => c.Text));
+			string data = string.Join("\r\n", theList.Items.Cast<ListViewItem>()
+				.Select(item => string.Join("\t", item.SubItems.Cast<ListViewItem.ListViewSubItem>().Take(take).Select(sb => sb.Text))));
+			Clipboard.SetText($"{headers}\r\n{data}");
 		}
 	}
 }

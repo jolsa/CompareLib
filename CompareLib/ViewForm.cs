@@ -9,10 +9,10 @@ namespace ComparerLib
 	{
 		private const int DefaultTabSize = 4;
 		private int _tabSize;
-		private ListForm.AppSettings _settings;
+		private AppSettings _settings;
 		private List<int?> _tabMenuChoices;
 
-		public ViewForm(ListForm.AppSettings settings, string name, string content)
+		public ViewForm(AppSettings settings, string name, string content)
 		{
 			InitializeComponent();
 

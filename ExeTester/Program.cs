@@ -22,6 +22,7 @@ SET NOCOUNT ON
 SELECT	name
 FROM		sys.tables
 ORDER BY name
+	<- tab here
 ";
 			var items = new List<DiffItem>()
 			{

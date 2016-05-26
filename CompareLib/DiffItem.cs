@@ -14,7 +14,7 @@ namespace ComparerLib
 		AOnly,
 		BOnly
 	}
-	public enum Actions
+	internal enum Actions
 	{
 		View,
 		Compare
