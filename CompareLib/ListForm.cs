@@ -19,6 +19,8 @@ namespace ComparerLib
 		private List<DiffItem> _items;
 		private string _comparePath;
 		private AppSettings _settings;
+		private List<ListViewItem> _allItems;
+
 		public ListForm(CompareData parent)
 		{
 			InitializeComponent();
@@ -27,14 +29,21 @@ namespace ComparerLib
 			_items = parent.Items.ToList();
 
 			string caption = parent.DescriptionA == null || parent.DescriptionB == null
-		? "Compare Items"
-		: $"Compare {parent.DescriptionA} to {parent.DescriptionB}";
+				? "Compare Items"
+				: $"Compare {parent.DescriptionA} to {parent.DescriptionB}";
 			string plural = _items.Count == 1 ? "" : "s";
 			Text = $"{caption} - {_items.Count:#,0} item{plural}";
 			_parent = parent;
 			_comparePath = ConfigurationManager.AppSettings[ComparePathKey];
 			if (string.IsNullOrWhiteSpace(_comparePath) || !File.Exists(_comparePath))
 				throw new FileNotFoundException($@"Cannot file compare app at ""{_comparePath}""");
+
+			if (parent.DescriptionA != null && parent.DescriptionB != null)
+			{
+				menuAOnly.Text = $"&A: {parent.DescriptionA}";
+				menuBOnly.Text = $"&B: {parent.DescriptionB}";
+			}
+
 		}
 
 		private void CompareForm_Load(object sender, EventArgs e)
@@ -49,8 +58,8 @@ namespace ComparerLib
 			theList.Columns.Add(new ColumnHeader() { Text = "Action", TextAlign = HorizontalAlignment.Center });
 			theList.Columns.Add(new ColumnHeader() { Text = "" });
 
-			theList.Items.AddRange(
-				//	Create an array of list items
+			//	Create a list of list items
+			_allItems =
 				_items.Select(item =>
 					//	Build List View Item with an array of values
 					new ListViewItem(
@@ -58,12 +67,15 @@ namespace ComparerLib
 						item.Names).Concat(
 						new string[maxNames - item.Names.Count]).Concat( // If not all items have the same number of names, add empty items
 						new[] { item.ActionName }).ToArray()
-						)).ToArray()
-				);
+						)).ToList();
+
+			theList.Items.AddRange(_allItems.ToArray());
 
 			//	Make the last subitem look like a hyperlink
+			int index = 0;
 			theList.Items.Cast<ListViewItem>().ToList().ForEach(item =>
 			{
+				item.Tag = _items[index++].Condition.ToString();
 				item.UseItemStyleForSubItems = false;
 				var subItem = item.SubItems.Cast<ListViewItem.ListViewSubItem>().Last();
 				subItem.ForeColor = Color.Blue;
@@ -174,6 +186,25 @@ namespace ComparerLib
 			string data = string.Join("\r\n", theList.Items.Cast<ListViewItem>()
 				.Select(item => string.Join("\t", item.SubItems.Cast<ListViewItem.ListViewSubItem>().Take(take).Select(sb => sb.Text))));
 			Clipboard.SetText($"{headers}\r\n{data}");
+		}
+
+		private void menuViewItem_Click(object sender, EventArgs e)
+		{
+			string tag;
+			var menu = sender as ToolStripMenuItem;
+			if (menu == null || (tag = menu.Tag as string) == null)
+				return;
+
+			menu.Checked = !menu.Checked;
+			var view = new[] { menuDifferent, menuSame, menuAOnly, menuBOnly }
+				.ToDictionary(k => DiffItem.GetConditionFromName((string)k.Tag), v => v.Checked);
+
+			theList.BeginUpdate();
+			theList.Items.Clear();
+			theList.Items.AddRange(_allItems.Where(item => view[DiffItem.GetConditionFromName((string)item.Tag)]).ToArray());
+			theList.EndUpdate();
+
+
 		}
 	}
 }

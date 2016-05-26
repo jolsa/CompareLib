@@ -11,13 +11,20 @@ namespace ComparerLib
 		private const string FileName = "CompareLib.config";
 		private readonly string _filePath;
 		private Dictionary<string, string> _settings;
-		public string GetSetting(string key, string defaultValue = null)
+		public string this[string key, string defaultValue]
 		{
-			return (_settings.ContainsKey(key) ? _settings[key] : null) ?? defaultValue;
+			get { return this[key] ?? defaultValue; }
 		}
-		public void SetSetting(string key, string value)
+		public string this[string key]
 		{
-			_settings[key] = value;
+			get
+			{
+				return _settings.ContainsKey(key) ? _settings[key] : null;
+			}
+			set
+			{
+				_settings[key] = value ?? "";
+			}
 		}
 		public void SaveSettings()
 		{

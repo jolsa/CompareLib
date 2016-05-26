@@ -20,7 +20,7 @@ namespace ComparerLib
 			_settings = settings;
 
 			//	Get the value from the config file (if any)
-			string tab = _settings.GetSetting("tabSize", $"{DefaultTabSize}");
+			string tab = _settings["tabSize", $"{DefaultTabSize}"];
 
 			//	Convert to int
 			int tabSize;
@@ -45,7 +45,7 @@ namespace ComparerLib
 			_tabSize = tabSize;
 			TabMenus.ForEach(menu => menu.Checked = (string)menu.Tag == $"{_tabSize}");
 			textView.SetTabStopWidth(_tabSize);
-			_settings.SetSetting("tabSize", $"{tabSize}");
+			_settings["tabSize"] = $"{tabSize}";
 			_settings.SaveSettings();
 		}
 

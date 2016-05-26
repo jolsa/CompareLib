@@ -84,6 +84,10 @@ namespace ComparerLib
 		{
 			return (Actions)Enum.Parse(typeof(Actions), actionName);
 		}
+		internal static DiffConditions GetConditionFromName(string conditionName)
+		{
+			return (DiffConditions)Enum.Parse(typeof(DiffConditions), conditionName);
+		}
 
 		public DiffItem(string name, string contentsA, string contentsB) :
 			this(new[] { name }, contentsA, contentsB)

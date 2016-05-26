@@ -33,6 +33,11 @@
 			this.menuStripMain = new System.Windows.Forms.MenuStrip();
 			this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.menuCopy = new System.Windows.Forms.ToolStripMenuItem();
+			this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.menuDifferent = new System.Windows.Forms.ToolStripMenuItem();
+			this.menuSame = new System.Windows.Forms.ToolStripMenuItem();
+			this.menuAOnly = new System.Windows.Forms.ToolStripMenuItem();
+			this.menuBOnly = new System.Windows.Forms.ToolStripMenuItem();
 			this.menuStripMain.SuspendLayout();
 			this.SuspendLayout();
 			// 
@@ -64,7 +69,8 @@
 			// optionsToolStripMenuItem
 			// 
 			this.optionsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.menuCopy});
+            this.menuCopy,
+            this.viewToolStripMenuItem});
 			this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
 			this.optionsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
 			this.optionsToolStripMenuItem.Text = "&Options";
@@ -75,6 +81,57 @@
 			this.menuCopy.Size = new System.Drawing.Size(169, 22);
 			this.menuCopy.Text = "&Copy to clipboard";
 			this.menuCopy.Click += new System.EventHandler(this.menuCopy_Click);
+			// 
+			// viewToolStripMenuItem
+			// 
+			this.viewToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menuDifferent,
+            this.menuSame,
+            this.menuAOnly,
+            this.menuBOnly});
+			this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
+			this.viewToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
+			this.viewToolStripMenuItem.Text = "&View";
+			// 
+			// menuDifferent
+			// 
+			this.menuDifferent.Checked = true;
+			this.menuDifferent.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.menuDifferent.Name = "menuDifferent";
+			this.menuDifferent.Size = new System.Drawing.Size(152, 22);
+			this.menuDifferent.Tag = "Different";
+			this.menuDifferent.Text = "&Different";
+			this.menuDifferent.Click += new System.EventHandler(this.menuViewItem_Click);
+			// 
+			// menuSame
+			// 
+			this.menuSame.Checked = true;
+			this.menuSame.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.menuSame.Name = "menuSame";
+			this.menuSame.Size = new System.Drawing.Size(152, 22);
+			this.menuSame.Tag = "Same";
+			this.menuSame.Text = "&Same";
+			this.menuSame.Click += new System.EventHandler(this.menuViewItem_Click);
+			// 
+			// menuAOnly
+			// 
+			this.menuAOnly.Checked = true;
+			this.menuAOnly.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.menuAOnly.Name = "menuAOnly";
+			this.menuAOnly.Size = new System.Drawing.Size(152, 22);
+			this.menuAOnly.Tag = "AOnly";
+			this.menuAOnly.Text = "&A Only";
+			this.menuAOnly.Click += new System.EventHandler(this.menuViewItem_Click);
+			// 
+			// menuBOnly
+			// 
+			this.menuBOnly.Checked = true;
+			this.menuBOnly.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.menuBOnly.Name = "menuBOnly";
+			this.menuBOnly.Size = new System.Drawing.Size(152, 22);
+			this.menuBOnly.Tag = "BOnly";
+			this.menuBOnly.Text = "&B Only";
+			this.menuBOnly.Click += new System.EventHandler(this.menuViewItem_Click);
 			// 
 			// ListForm
 			// 
@@ -103,5 +160,10 @@
 		private System.Windows.Forms.MenuStrip menuStripMain;
 		private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem menuCopy;
+		private System.Windows.Forms.ToolStripMenuItem viewToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem menuDifferent;
+		private System.Windows.Forms.ToolStripMenuItem menuSame;
+		private System.Windows.Forms.ToolStripMenuItem menuAOnly;
+		private System.Windows.Forms.ToolStripMenuItem menuBOnly;
 	}
 }
