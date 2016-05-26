@@ -49,12 +49,14 @@ namespace ComparerLib
 		private void CompareForm_Load(object sender, EventArgs e)
 		{
 			int maxNames = _items.Any() ? _items.Max(item => item.Names.Count) : 0;
+			int labelCount = Math.Min(_parent.NameLabels.Count, maxNames);
+			var nameLabels = _parent.NameLabels.Take(maxNames).Concat(new string[maxNames - labelCount]).Select(s => s ?? "").ToList();
+			if (string.IsNullOrWhiteSpace(nameLabels[0]))
+				nameLabels[0] = "Name";
+
 			//	Add Headers
 			theList.Columns.Add(new ColumnHeader() { Text = "Issue", TextAlign = HorizontalAlignment.Left });
-			theList.Columns.Add(new ColumnHeader() { Text = "Name", TextAlign = HorizontalAlignment.Left });
-			//	Add Headers for extra names
-			for (int i = 1; i < maxNames; i++)
-				theList.Columns.Add(new ColumnHeader() { Text = "", TextAlign = HorizontalAlignment.Left });
+			theList.Columns.AddRange(nameLabels.Select(n => new ColumnHeader() { Text = n, TextAlign = HorizontalAlignment.Left }).ToArray());
 			theList.Columns.Add(new ColumnHeader() { Text = "Action", TextAlign = HorizontalAlignment.Center });
 			theList.Columns.Add(new ColumnHeader() { Text = "" });
 

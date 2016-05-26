@@ -10,7 +10,8 @@ namespace ComparerLib
 		public string DescriptionA { get; private set; }
 		public string DescriptionB { get; private set; }
 		public ReadOnlyCollection<DiffItem> Items { get; private set; }
-		public CompareData(IEnumerable<DiffItem> items, string descriptionA = null, string descriptionB = null)
+		public ReadOnlyCollection<string> NameLabels { get; private set; }
+		public CompareData(IEnumerable<DiffItem> items, string descriptionA = null, string descriptionB = null, IEnumerable<string> nameLabels = null)
 		{
 			//	Set empty descriptions to null
 			if (descriptionA != null && descriptionA.Trim() == "") descriptionA = null;
@@ -19,7 +20,10 @@ namespace ComparerLib
 			//	Set the parent
 			var list = items.ToList();
 			list.ForEach(item => item.Parent = this);
+
+			//	Set Items and labels
 			Items = list.AsReadOnly();
+			NameLabels = (nameLabels ?? new string[0]).ToList().AsReadOnly();
 
 			//	Set the descriptions
 			DescriptionA = descriptionA;

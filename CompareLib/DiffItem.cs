@@ -95,6 +95,8 @@ namespace ComparerLib
 		public DiffItem(IEnumerable<string> names, string contentsA, string contentsB)
 		{
 			_names = new List<string>(names);
+			if (!_names.Any())
+				_names.Add("<unknown>");
 			ContentsA = contentsA;
 			ContentsB = contentsB;
 		}

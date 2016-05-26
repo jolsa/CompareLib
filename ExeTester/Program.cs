@@ -31,7 +31,7 @@ ORDER BY name
 				new DiffItem(new[] { "spSomeProcedure1", "Stored Procedures" }, text, null),
 				new DiffItem(new[] { "spSomeProcedure2", "Stored Procedures" }, null, text)
 			};
-			Comparer.Compare(items, "DB1", "DB2");
+			Comparer.Compare(items, "DB1", "DB2", new string[] { "Item Name", "Type Name" });
 		}
 	}
 }
