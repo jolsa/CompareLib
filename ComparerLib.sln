@@ -7,6 +7,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExeTester", "ExeTester\ExeT
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComparerLib", "CompareLib\ComparerLib.csproj", "{88C9B4C1-7835-4964-9053-FD2D02653999}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1CC6019D-CC54-4F20-B4C4-A678943B07D9}"
+	ProjectSection(SolutionItems) = preProject
+		CompareLibUI.png = CompareLibUI.png
+		README.md = README.md
+		Viewer.png = Viewer.png
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

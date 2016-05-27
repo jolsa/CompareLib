@@ -1,11 +1,21 @@
 # CompareLib
 
-I specifically created this library as a component for LINQPad.  I frequently write scripts to compare content from one source to another, but having a user interface to display the differences--especially side-by-side is invaluable.
+I specifically created this library as a component for LINQPad.  I frequently write scripts to compare content from one source to another, but having a user interface to display the differences—especially side-by-side is invaluable.
 
 So CompareLib is useful in LINQPad but can be called by an application as well.
 
-### Requirement:
+### Requirements:
 * External compare application. I like [KDiff3](http://kdiff3.sourceforge.net/).
+* Compare application must be in your app.config.  In the case of LINQPad, use the LINQPad.config file in the LINQPad application directory, usually C:\Program Files (x86)\LINQPad5. (create the LINQPad.config file if you don’t have one—do *not* use LINQPad.exe.config).
+```xml
+<?xml version="1.0"?>
+<configuration>
+	<appSettings>
+		<add key="comparer" value="C:\Program Files (x86)\KDiff3\kdiff3.exe"/>
+	</appSettings>
+</configuration>
+```
+* If you use it in LINQPad, you will need to be able to have write access the application directory (usually C:\Program Files (x86)\LINQPad5) or the application will not run without errors.
 
 ### Public Methods:
 * Compare
@@ -103,3 +113,10 @@ if (diffs.Any())
 ### Screenshot:
 
 ![CompareLibUI.png](CompareLibUI.png?raw=true "Screen Shot")
+
+Choosing *Compare* will launch the compare application in your app.config.
+Choosing *View* will show the contents in a simple viewer:
+
+	![Viewer.png](Viewer.png?raw=true "Screen Shot")
+
+	An undocumented feature of the viewer is you can hold down Ctrl and press 1-9 to choose the tab setting.
