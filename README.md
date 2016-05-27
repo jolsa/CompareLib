@@ -117,6 +117,6 @@ if (diffs.Any())
 Choosing *Compare* will launch the compare application in your app.config.
 Choosing *View* will show the contents in a simple viewer:
 
-	![Viewer.png](Viewer.png?raw=true "Screen Shot")
+![Viewer.png](Viewer.png?raw=true "Screen Shot")
 
-	An undocumented feature of the viewer is you can hold down Ctrl and press 1-9 to choose the tab setting.
+An undocumented feature of the viewer is you can hold down Ctrl and press 1-9 to choose the tab setting.
