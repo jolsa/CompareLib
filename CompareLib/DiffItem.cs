@@ -2,27 +2,41 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ComparerLib
 {
-	public enum DiffConditions
-	{
-		Different,
-		Same,
-		AOnly,
-		BOnly
-	}
-	internal enum Actions
-	{
-		View,
-		Compare
-	}
 	public class DiffItem
 	{
 		private readonly List<string> _names;
 		internal CompareData Parent { get; set; }
+
+		/// <summary>
+		/// Create a DiffItem
+		/// </summary>
+		/// <param name="name">A name to describe the item (e.g. filename)</param>
+		/// <param name="contentsA">Item A content</param>
+		/// <param name="contentsB">Item B content</param>
+		public DiffItem(string name, string contentsA, string contentsB) :
+			this(new[] { name }, contentsA, contentsB)
+		{ }
+		/// <summary>
+		/// Create a DiffItem
+		/// </summary>
+		/// <param name="names">Names to describe the item (e.g. filename, extension, type, etc.)</param>
+		/// <param name="contentsA">Item A content</param>
+		/// <param name="contentsB">Item B content</param>
+		public DiffItem(IEnumerable<string> names, string contentsA, string contentsB)
+		{
+			_names = new List<string>(names);
+			if (!_names.Any())
+				_names.Add("<unknown>");
+			ContentsA = contentsA;
+			ContentsB = contentsB;
+		}
+
+		/// <summary>
+		/// Returns the comparison condition of A content to B content
+		/// </summary>
 		public DiffConditions Condition
 		{
 			get
@@ -37,10 +51,16 @@ namespace ComparerLib
 				return val;
 			}
 		}
+		/// <summary>
+		/// Returns Name Labels
+		/// </summary>
 		public ReadOnlyCollection<string> Names
 		{
 			get { return _names.AsReadOnly(); }
 		}
+		/// <summary>
+		/// Returns Name Label (if there's only one)
+		/// </summary>
 		public string Name
 		{
 			get { return _names.Count == 1 ? _names.First() : null; }
@@ -48,6 +68,9 @@ namespace ComparerLib
 		public string ContentsA { get; private set; }
 		public string ContentsB { get; private set; }
 
+		/// <summary>
+		/// Returns a user-friendly description of the difference
+		/// </summary>
 		public string DiffDescription
 		{
 			get
@@ -65,7 +88,11 @@ namespace ComparerLib
 				return result;
 			}
 		}
-		public string ActionName
+
+		/// <summary>
+		/// Returns the action the UI can offer for the item
+		/// </summary>
+		internal string ActionName
 		{
 			get
 			{
@@ -80,26 +107,5 @@ namespace ComparerLib
 				return action;
 			}
 		}
-		internal static Actions GetActionFromName(string actionName)
-		{
-			return (Actions)Enum.Parse(typeof(Actions), actionName);
-		}
-		internal static DiffConditions GetConditionFromName(string conditionName)
-		{
-			return (DiffConditions)Enum.Parse(typeof(DiffConditions), conditionName);
-		}
-
-		public DiffItem(string name, string contentsA, string contentsB) :
-			this(new[] { name }, contentsA, contentsB)
-		{ }
-		public DiffItem(IEnumerable<string> names, string contentsA, string contentsB)
-		{
-			_names = new List<string>(names);
-			if (!_names.Any())
-				_names.Add("<unknown>");
-			ContentsA = contentsA;
-			ContentsB = contentsB;
-		}
-
 	}
 }

@@ -55,6 +55,7 @@
     <Compile Include="DiffItem.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TextBoxExtension.cs" />
+    <Compile Include="Utility.cs" />
     <Compile Include="ViewForm.cs">
       <SubType>Form</SubType>
     </Compile>

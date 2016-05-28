@@ -74,6 +74,7 @@ namespace ComparerLib
 				if (k >= '1' && k <= '9')
 				{
 					int tabSize = k - '0';
+					//	If it's a menu item, let the menu handle it
 					if (!_tabMenuChoices.Contains(tabSize))
 					{
 						SetTabSize(tabSize);
