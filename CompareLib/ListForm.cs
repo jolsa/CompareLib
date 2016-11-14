@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Configuration;
 using System.Diagnostics;
 using System.Drawing;
@@ -15,6 +16,7 @@ namespace ComparerLib
 	{
 		private const string ComparePathKey = "comparer";
 
+		private Color HyperLinkColor = Color.Blue;
 		private CompareData _parent;
 		private AppSettings _settings;
 		private List<ListViewItem> _allItems; // Saved ListViewItems to remove and re-add when filters are applied
@@ -67,7 +69,12 @@ namespace ComparerLib
 			theList.Columns.Add(new ColumnHeader() { Text = "Issue", TextAlign = HorizontalAlignment.Left });
 			theList.Columns.AddRange(nameLabels.Select(n => new ColumnHeader() { Text = n, TextAlign = HorizontalAlignment.Left }).ToArray());
 			theList.Columns.Add(new ColumnHeader() { Text = "Action", TextAlign = HorizontalAlignment.Center });
-			theList.Columns.Add(new ColumnHeader() { Text = "" });	//	A blank column keeps the ListView from looking odd after resizing
+			int startHyperlinks = theList.Columns.Count;
+			var actions = (_parent.CustomActionLabels ?? new ReadOnlyCollection<string>(new List<string>())).ToList();
+			if (actions.Any())
+				actions.ForEach(l => theList.Columns.Add(new ColumnHeader() { Text = "", TextAlign = HorizontalAlignment.Center }));
+
+			theList.Columns.Add(new ColumnHeader() { Text = "" });  //	A blank column keeps the ListView from looking odd after resizing
 
 			//	Create a list of list items
 			_allItems =
@@ -77,20 +84,32 @@ namespace ComparerLib
 						new[] { item.DiffDescription }.Concat(
 						item.Names).Concat(
 						new string[maxNames - item.Names.Count]).Concat( // If not all items have the same number of names, add empty items
-						new[] { item.ActionName }).ToArray()
+						new[] { item.ActionName }.Concat(actions)).ToArray()
 						)).ToList();
 
 			theList.Items.AddRange(_allItems.ToArray());
 
-			//	Make the last subitem look like a hyperlink
+			//	Make the action subitems look like hyperlinks
 			int index = 0;
 			theList.Items.Cast<ListViewItem>().ToList().ForEach(item =>
 			{
-				item.Tag = _items[index++].Condition.ToString();
+				var diffItem = _items[index];
+				item.Tag = diffItem.Condition.ToString();
 				item.UseItemStyleForSubItems = false;
-				var subItem = item.SubItems.Cast<ListViewItem.ListViewSubItem>().Last();
-				subItem.ForeColor = Color.Blue;
-				subItem.Font = new Font(subItem.Font, FontStyle.Underline);
+				for (int i = startHyperlinks; i < theList.Columns.Count; i++)
+				{
+					var subItem = item.SubItems[i - 1];
+					subItem.Tag = (i == startHyperlinks);
+					bool enabled = i == startHyperlinks || (_parent.CustomAction != null && (_parent.CheckEnabled?.Invoke(subItem.Text, index, diffItem) ?? true));
+					if (enabled)
+					{
+						subItem.ForeColor = HyperLinkColor;
+						subItem.Font = new Font(subItem.Font, FontStyle.Underline);
+					}
+					else
+						subItem.ForeColor = Color.Gray;
+				}
+				index++;
 			});
 
 			//	Auto-size the listview
@@ -105,10 +124,12 @@ namespace ComparerLib
 			bool hasAction = hit.Item != null &&
 					hit.SubItem != null &&
 					!string.IsNullOrEmpty(hit.SubItem.Text) &&
-					hit.SubItem == hit.Item.SubItems.Cast<ListViewItem.ListViewSubItem>().Last();
+					hit.SubItem.ForeColor == HyperLinkColor;
 			//	If so, change the cursor and store the item in the tag
 			theList.Cursor = hasAction ? Cursors.Hand : Cursors.Default;
 			theList.Tag = hasAction ? hit.Item : null;
+			if (hasAction)
+				hit.Item.Tag = new Tuple<string, bool>(hit.SubItem.Text, (bool)hit.SubItem.Tag);
 		}
 
 		private void theList_MouseDown(object sender, MouseEventArgs e)
@@ -120,14 +141,22 @@ namespace ComparerLib
 				theList.SelectedItems.Clear();
 				item.Selected = true;
 				item.Focused = true;
+				var data = (Tuple<string, bool>)item.Tag;
+				var defaultAction = data.Item2;
+				var actionText = data.Item1;
 				//	Get the action
-				var action = Utility.GetActionFromName(item.SubItems.Cast<ListViewItem.ListViewSubItem>().Last().Text);
-				if (action == Actions.Compare)
-					CompareItems(_items[item.Index]);
-				else if (action == Actions.View)
-					ViewItem(_items[item.Index]);
-				else
-					throw new NotImplementedException("This should not happen");
+				if (defaultAction)
+				{
+					var action = Utility.GetActionFromName(actionText);
+					if (action == Actions.Compare)
+						CompareItems(_items[item.Index]);
+					else if (action == Actions.View)
+						ViewItem(_items[item.Index]);
+					else
+						throw new NotImplementedException("This should not happen");
+				}
+				//	Invoke custom action (if there is one)
+				else _parent.CustomAction?.Invoke(actionText, item.Index, _items[item.Index]);
 			}
 		}
 
