@@ -19,11 +19,18 @@ namespace ComparerLib
 		private Color HyperLinkColor = Color.Blue;
 		private CompareData _parent;
 		private AppSettings _settings;
-		private List<ListViewItem> _allItems; // Saved ListViewItems to remove and re-add when filters are applied
-		private List<DiffItem> _items;
+		private List<ListViewItem> _allListViewItems; // Saved ListViewItems to remove and re-add when filters are applied
+		private List<DiffItem> _diffItems;
 
 		private string _comparePath;
 		private int _startHyperlinks;
+
+		private class ItemTag
+		{
+			public DiffItem DiffItem { get; set; }
+			public string ActionText { get; set; }
+			public bool IsDefaultAction { get; set; }
+		}
 
 		public ListForm(CompareData parent)
 		{
@@ -32,14 +39,14 @@ namespace ComparerLib
 			_parent = parent;
 			_parent.ItemUpdated = OnItemUpdate;
 			_settings = new AppSettings();
-			_items = parent.Items.ToList();
+			_diffItems = parent.Items.ToList();
 
 			//	Set Caption
 			string caption = parent.DescriptionA == null || parent.DescriptionB == null
 				? "Compare Items"
 				: $"Compare {parent.DescriptionA} to {parent.DescriptionB}";
-			string plural = _items.Count == 1 ? "" : "s";
-			Text = $"{caption} - {_items.Count:#,0} item{plural}";
+			string plural = _diffItems.Count == 1 ? "" : "s";
+			Text = $"{caption} - {_diffItems.Count:#,0} item{plural}";
 
 			//	Make sure the comparer exists
 			_comparePath = ConfigurationManager.AppSettings[ComparePathKey];
@@ -54,25 +61,23 @@ namespace ComparerLib
 			}
 
 		}
-		private void OnItemUpdate(int index, DiffItem item, UpdateTypes type)
+		private void OnItemUpdate(DiffItem item, UpdateTypes type)
 		{
 			if (type == UpdateTypes.Delete)
 			{
-				_allItems.RemoveAt(index);
-				_items.RemoveAt(index);
-				theList.Items.RemoveAt(index);
+				var listItem = _allListViewItems.First(a => ((ItemTag)a.Tag).DiffItem == item);
+				_diffItems.Remove(item);
+				_allListViewItems.Remove(listItem);
+				theList.Items.Remove(listItem);
 			}
 			else
-			{
-				_items[index] = item;
-				UpdateRow(index);
-			}
+				UpdateRow(item);
 		}
 
 		private void CompareForm_Load(object sender, EventArgs e)
 		{
 			//	In case the list of names isn't the same for all items, get the max
-			int maxNames = _items.Any() ? _items.Max(item => item.Names.Count) : 0;
+			int maxNames = _diffItems.Any() ? _diffItems.Max(item => item.Names.Count) : 0;
 			//	Get the lesser of the label count or maxNames
 			int labelCount = Math.Min(_parent.NameLabels.Count, maxNames);
 			//	Create the name labels and any empty ones needed
@@ -93,42 +98,39 @@ namespace ComparerLib
 			theList.Columns.Add(new ColumnHeader() { Text = "" });  //	A blank column keeps the ListView from looking odd after resizing
 
 			//	Create a list of list items
-			_allItems =
-				_items.Select(item =>
+			_allListViewItems =
+				_diffItems.Select(item =>
 					//	Build List View Item with an array of values
 					new ListViewItem(
 						new[] { item.DiffDescription }.Concat(
 						item.Names).Concat(
 						new string[maxNames - item.Names.Count]).Concat( // If not all items have the same number of names, add empty items
-						new[] { item.ActionName }.Concat(actions)).ToArray()
-						)).ToList();
+						new[] { item.ActionName }.Concat(actions))
+						.ToArray())
+					{ Tag = new ItemTag() { DiffItem = item } }).ToList();
 
-			theList.Items.AddRange(_allItems.ToArray());
+			theList.Items.AddRange(_allListViewItems.ToArray());
 
-			//	Make the action subitems look like hyperlinks
-			for (int i = 0; i < theList.Items.Count; i++)
-				UpdateRow(i);
+			_diffItems.ForEach(item => UpdateRow(item));
 
 			//	Auto-size the listview
 			theList.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
 			theList.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
 		}
 
-		private void UpdateRow(int index)
+		private void UpdateRow(DiffItem diffItem)
 		{
-			var item = theList.Items[index];
-			var diffItem = _items[index];
+			var item = _allListViewItems.First(a => ((ItemTag)a.Tag).DiffItem == diffItem);
 			item.SubItems[0].Text = diffItem.DiffDescription;
 			item.SubItems[_startHyperlinks - 1].Text = diffItem.ActionName;
 
 			//	Make the action subitems look like hyperlinks
-			item.Tag = diffItem.Condition.ToString();
 			item.UseItemStyleForSubItems = false;
 			for (int i = _startHyperlinks; i < theList.Columns.Count; i++)
 			{
 				var subItem = item.SubItems[i - 1];
 				subItem.Tag = (i == _startHyperlinks);
-				bool enabled = i == _startHyperlinks || (_parent.CustomAction != null && (_parent.CheckEnabled?.Invoke(subItem.Text, index, diffItem) ?? true));
+				bool enabled = i == _startHyperlinks || (_parent.CustomAction != null && (_parent.CheckEnabled?.Invoke(subItem.Text, diffItem) ?? true));
 				if (enabled)
 				{
 					subItem.ForeColor = HyperLinkColor;
@@ -151,7 +153,11 @@ namespace ComparerLib
 			theList.Cursor = hasAction ? Cursors.Hand : Cursors.Default;
 			theList.Tag = hasAction ? hit.Item : null;
 			if (hasAction)
-				hit.Item.Tag = new Tuple<string, bool>(hit.SubItem.Text, (bool)hit.SubItem.Tag);
+			{
+				var tag = (ItemTag)hit.Item.Tag;
+				tag.ActionText = hit.SubItem.Text;
+				tag.IsDefaultAction = (bool)hit.SubItem.Tag;
+			}
 		}
 
 		private void theList_MouseDown(object sender, MouseEventArgs e)
@@ -163,22 +169,20 @@ namespace ComparerLib
 				theList.SelectedItems.Clear();
 				item.Selected = true;
 				item.Focused = true;
-				var data = (Tuple<string, bool>)item.Tag;
-				var defaultAction = data.Item2;
-				var actionText = data.Item1;
+				var tag = (ItemTag)item.Tag;
 				//	Get the action
-				if (defaultAction)
+				if (tag.IsDefaultAction)
 				{
-					var action = Utility.GetActionFromName(actionText);
+					var action = Utility.GetActionFromName(tag.ActionText);
 					if (action == Actions.Compare)
-						CompareItems(_items[item.Index]);
+						CompareItems(tag.DiffItem);
 					else if (action == Actions.View)
-						ViewItem(_items[item.Index]);
+						ViewItem(tag.DiffItem);
 					else
 						throw new NotImplementedException("This should not happen");
 				}
 				//	Invoke custom action (if there is one)
-				else _parent.CustomAction?.Invoke(actionText, item.Index, _items[item.Index]);
+				else _parent.CustomAction?.Invoke(tag.ActionText, tag.DiffItem);
 			}
 		}
 
@@ -271,7 +275,7 @@ namespace ComparerLib
 
 			theList.BeginUpdate();
 			theList.Items.Clear();
-			theList.Items.AddRange(_allItems.Where(item => view[Utility.GetConditionFromName((string)item.Tag)]).ToArray());
+			theList.Items.AddRange(_allListViewItems.Where(item => view[((ItemTag)item.Tag).DiffItem.Condition]).ToArray());
 			theList.EndUpdate();
 
 		}

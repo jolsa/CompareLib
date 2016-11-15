@@ -11,16 +11,16 @@ namespace ComparerLib
 		/// Gets or sets extra labels used in UI
 		/// </summary>
 		public ReadOnlyCollection<string> CustomActionLabels { get; private set; }
-		public Action<string, int, DiffItem> CustomAction { get; private set; }
-		public Func<string, int, DiffItem, bool> CheckEnabled { get; private set; }
-		internal Action<int, DiffItem, UpdateTypes> ItemUpdated { get; set; }
+		public Action<string, DiffItem> CustomAction { get; private set; }
+		public Func<string, DiffItem, bool> CheckEnabled { get; private set; }
+		internal Action<DiffItem, UpdateTypes> ItemUpdated { get; set; }
 
 		public string DescriptionA { get; private set; }
 		public string DescriptionB { get; private set; }
 		public ReadOnlyCollection<DiffItem> Items { get; private set; }
 		public ReadOnlyCollection<string> NameLabels { get; private set; }
 		public CompareData(IEnumerable<DiffItem> items, string descriptionA = null, string descriptionB = null, IEnumerable<string> nameLabels = null,
-			IEnumerable<string> customActionLabels = null, Action<string, int, DiffItem> customAction = null, Func<string, int, DiffItem, bool> checkEnabled = null)
+			IEnumerable<string> customActionLabels = null, Action<string, DiffItem> customAction = null, Func<string, DiffItem, bool> checkEnabled = null)
 		{
 			//	Set empty descriptions to null
 			if (descriptionA != null && descriptionA.Trim() == "") descriptionA = null;
@@ -47,14 +47,13 @@ namespace ComparerLib
 		}
 		internal void UpdateItem(DiffItem item, UpdateTypes type)
 		{
-			int index = Items.IndexOf(item);
 			if (type == UpdateTypes.Delete)
 			{
 				var list = Items.ToList();
-				list.RemoveAt(index);
+				list.Remove(item);
 				Items = list.AsReadOnly();
 			}
-			ItemUpdated?.Invoke(index, item, type);
+			ItemUpdated?.Invoke(item, type);
 		}
 	}
 }

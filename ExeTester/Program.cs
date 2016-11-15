@@ -44,14 +44,14 @@ ORDER BY name
 
 			Comparer.Compare(items, "DB1", "DB2", new string[] { "Item Name", "Type Name" }, new[] { Actions.Push, Actions.Delete }, CustomAction, CheckEnabled);
 		}
-		private static void CustomAction(string action, int index, DiffItem item)
+		private static void CustomAction(string action, DiffItem item)
 		{
 			if (action == Actions.Push)
 				item.Update(UpdateTypes.AToB);
 			else if (action == Actions.Delete)
 				item.Update(UpdateTypes.Delete);
 		}
-		private static bool CheckEnabled(string action, int index, DiffItem item)
+		private static bool CheckEnabled(string action, DiffItem item)
 		{
 			if (action == Actions.Push)
 				return item.Condition == DiffConditions.AOnly || item.Condition == DiffConditions.Different;

@@ -19,7 +19,7 @@ namespace ComparerLib
 		/// <param name="customAction">Optional custom action callback</param>
 		/// <param name="checkEnabled">Optional callback to enable/disable custom action</param>
 		public static void Compare(IEnumerable<DiffItem> items, string descriptionA = null, string descriptionB = null, IEnumerable<string> nameLabels = null,
-			IEnumerable<string> customActionLabels = null, Action<string, int, DiffItem> customAction = null, Func<string, int, DiffItem, bool> checkEnabled = null)
+			IEnumerable<string> customActionLabels = null, Action<string, DiffItem> customAction = null, Func<string, DiffItem, bool> checkEnabled = null)
 		{
 			Compare(null, items, descriptionA, descriptionB, nameLabels, customActionLabels, customAction, checkEnabled);
 		}
@@ -35,7 +35,7 @@ namespace ComparerLib
 		/// <param name="customAction">Optional custom action callback</param>
 		/// <param name="checkEnabled">Optional callback to enable/disable custom action</param>
 		public static void Compare(IntPtr ownerHandle, IEnumerable<DiffItem> items, string descriptionA = null, string descriptionB = null, IEnumerable<string> nameLabels = null,
-			IEnumerable<string> customActionLabels = null, Action<string, int, DiffItem> customAction = null, Func<string, int, DiffItem, bool> checkEnabled = null)
+			IEnumerable<string> customActionLabels = null, Action<string, DiffItem> customAction = null, Func<string, DiffItem, bool> checkEnabled = null)
 		{
 			Compare(ownerHandle.ToWin32Window(), items, descriptionA, descriptionB, nameLabels, customActionLabels, customAction, checkEnabled);
 		}
@@ -51,7 +51,7 @@ namespace ComparerLib
 		/// <param name="customAction">Optional custom action callback</param>
 		/// <param name="checkEnabled">Optional callback to enable/disable custom action</param>
 		public static void Compare(IWin32Window owner, IEnumerable<DiffItem> items, string descriptionA = null, string descriptionB = null, IEnumerable<string> nameLabels = null,
-			IEnumerable<string> customActionLabels = null, Action<string, int, DiffItem> customAction = null, Func<string, int, DiffItem, bool> checkEnabled = null)
+			IEnumerable<string> customActionLabels = null, Action<string, DiffItem> customAction = null, Func<string, DiffItem, bool> checkEnabled = null)
 		{
 			var cmp = new CompareData(items, descriptionA, descriptionB, nameLabels, customActionLabels, customAction, checkEnabled);
 			using (var frm = new ListForm(cmp))
