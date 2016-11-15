@@ -46,7 +46,10 @@ ORDER BY name
 		}
 		private static void CustomAction(string action, int index, DiffItem item)
 		{
-			MessageBox.Show($"{action} - {item.ContentsA ?? item.ContentsB}");
+			if (action == Actions.Push)
+				item.Update(UpdateTypes.AToB);
+			else if (action == Actions.Delete)
+				item.Update(UpdateTypes.Delete);
 		}
 		private static bool CheckEnabled(string action, int index, DiffItem item)
 		{

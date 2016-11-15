@@ -107,5 +107,13 @@ namespace ComparerLib
 				return action;
 			}
 		}
+		public void Update(UpdateTypes type)
+		{
+			if (type == UpdateTypes.AToB)
+				ContentsB = ContentsA;
+			else if (type == UpdateTypes.BToA)
+				ContentsA = ContentsB;
+			Parent.UpdateItem(this, type);
+		}
 	}
 }

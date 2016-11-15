@@ -10,6 +10,12 @@ namespace ComparerLib
 		AOnly,
 		BOnly
 	}
+	public enum UpdateTypes
+	{
+		Delete,
+		AToB,
+		BToA
+	}
 	internal enum Actions
 	{
 		View,

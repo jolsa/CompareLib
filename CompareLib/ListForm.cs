@@ -23,12 +23,14 @@ namespace ComparerLib
 		private List<DiffItem> _items;
 
 		private string _comparePath;
+		private int _startHyperlinks;
 
 		public ListForm(CompareData parent)
 		{
 			InitializeComponent();
 
 			_parent = parent;
+			_parent.ItemUpdated = OnItemUpdate;
 			_settings = new AppSettings();
 			_items = parent.Items.ToList();
 
@@ -52,6 +54,20 @@ namespace ComparerLib
 			}
 
 		}
+		private void OnItemUpdate(int index, DiffItem item, UpdateTypes type)
+		{
+			if (type == UpdateTypes.Delete)
+			{
+				_allItems.RemoveAt(index);
+				_items.RemoveAt(index);
+				theList.Items.RemoveAt(index);
+			}
+			else
+			{
+				_items[index] = item;
+				UpdateRow(index);
+			}
+		}
 
 		private void CompareForm_Load(object sender, EventArgs e)
 		{
@@ -69,7 +85,7 @@ namespace ComparerLib
 			theList.Columns.Add(new ColumnHeader() { Text = "Issue", TextAlign = HorizontalAlignment.Left });
 			theList.Columns.AddRange(nameLabels.Select(n => new ColumnHeader() { Text = n, TextAlign = HorizontalAlignment.Left }).ToArray());
 			theList.Columns.Add(new ColumnHeader() { Text = "Action", TextAlign = HorizontalAlignment.Center });
-			int startHyperlinks = theList.Columns.Count;
+			_startHyperlinks = theList.Columns.Count;
 			var actions = (_parent.CustomActionLabels ?? new ReadOnlyCollection<string>(new List<string>())).ToList();
 			if (actions.Any())
 				actions.ForEach(l => theList.Columns.Add(new ColumnHeader() { Text = "", TextAlign = HorizontalAlignment.Center }));
@@ -90,31 +106,37 @@ namespace ComparerLib
 			theList.Items.AddRange(_allItems.ToArray());
 
 			//	Make the action subitems look like hyperlinks
-			int index = 0;
-			theList.Items.Cast<ListViewItem>().ToList().ForEach(item =>
-			{
-				var diffItem = _items[index];
-				item.Tag = diffItem.Condition.ToString();
-				item.UseItemStyleForSubItems = false;
-				for (int i = startHyperlinks; i < theList.Columns.Count; i++)
-				{
-					var subItem = item.SubItems[i - 1];
-					subItem.Tag = (i == startHyperlinks);
-					bool enabled = i == startHyperlinks || (_parent.CustomAction != null && (_parent.CheckEnabled?.Invoke(subItem.Text, index, diffItem) ?? true));
-					if (enabled)
-					{
-						subItem.ForeColor = HyperLinkColor;
-						subItem.Font = new Font(subItem.Font, FontStyle.Underline);
-					}
-					else
-						subItem.ForeColor = Color.Gray;
-				}
-				index++;
-			});
+			for (int i = 0; i < theList.Items.Count; i++)
+				UpdateRow(i);
 
 			//	Auto-size the listview
 			theList.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
 			theList.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
+		}
+
+		private void UpdateRow(int index)
+		{
+			var item = theList.Items[index];
+			var diffItem = _items[index];
+			item.SubItems[0].Text = diffItem.DiffDescription;
+			item.SubItems[_startHyperlinks - 1].Text = diffItem.ActionName;
+
+			//	Make the action subitems look like hyperlinks
+			item.Tag = diffItem.Condition.ToString();
+			item.UseItemStyleForSubItems = false;
+			for (int i = _startHyperlinks; i < theList.Columns.Count; i++)
+			{
+				var subItem = item.SubItems[i - 1];
+				subItem.Tag = (i == _startHyperlinks);
+				bool enabled = i == _startHyperlinks || (_parent.CustomAction != null && (_parent.CheckEnabled?.Invoke(subItem.Text, index, diffItem) ?? true));
+				if (enabled)
+				{
+					subItem.ForeColor = HyperLinkColor;
+					subItem.Font = new Font(subItem.Font, FontStyle.Underline);
+				}
+				else
+					subItem.ForeColor = Color.Gray;
+			}
 		}
 
 		private void theList_MouseMove(object sender, MouseEventArgs e)

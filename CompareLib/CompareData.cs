@@ -13,6 +13,7 @@ namespace ComparerLib
 		public ReadOnlyCollection<string> CustomActionLabels { get; private set; }
 		public Action<string, int, DiffItem> CustomAction { get; private set; }
 		public Func<string, int, DiffItem, bool> CheckEnabled { get; private set; }
+		internal Action<int, DiffItem, UpdateTypes> ItemUpdated { get; set; }
 
 		public string DescriptionA { get; private set; }
 		public string DescriptionB { get; private set; }
@@ -43,6 +44,17 @@ namespace ComparerLib
 			CustomAction = customAction;
 			CheckEnabled = checkEnabled;
 
+		}
+		internal void UpdateItem(DiffItem item, UpdateTypes type)
+		{
+			int index = Items.IndexOf(item);
+			if (type == UpdateTypes.Delete)
+			{
+				var list = Items.ToList();
+				list.RemoveAt(index);
+				Items = list.AsReadOnly();
+			}
+			ItemUpdated?.Invoke(index, item, type);
 		}
 	}
 }
